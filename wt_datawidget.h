@@ -5,8 +5,7 @@
  * 1. 定义数据编辑器的主界面类 WT_DataWidget。
  * 2. 负责管理多个 DataSingleSheet 实例，支持多文件同时打开。
  * 3. 协调顶部工具栏与当前活动页签的交互。
- * 4. 负责将所有页签数据同步保存到项目文件中。
- * 5. [保留优化] 提供了 getAllDataModels 接口，支持多文件数据传递。
+ * 4. [更新] 适配滤波抽样功能，将单列表头和单列数组修改为接收完整的二维全表数据导出。
  */
 
 #ifndef WT_DATAWIDGET_H
@@ -16,7 +15,9 @@
 #include <QStandardItemModel>
 #include <QJsonArray>
 #include <QMap>
-#include "datasinglesheet.h" // 包含单页类
+#include <QVector>
+#include <QStringList>
+#include "datasinglesheet.h"
 
 namespace Ui {
 class WT_DataWidget;
@@ -30,25 +31,12 @@ public:
     explicit WT_DataWidget(QWidget *parent = nullptr);
     ~WT_DataWidget();
 
-    // 清空所有数据
     void clearAllData();
-
-    // 从项目参数恢复数据
     void loadFromProjectData();
-
-    // 获取当前活动页的模型（兼容旧接口）
     QStandardItemModel* getDataModel() const;
-
-    // [保留功能] 获取所有已打开文件的数据模型 (用于多文件绘图/拟合选择)
     QMap<QString, QStandardItemModel*> getAllDataModels() const;
-
-    // 加载指定文件数据
     void loadData(const QString& filePath, const QString& fileType = "auto");
-
-    // 获取当前文件名
     QString getCurrentFileName() const;
-
-    // 是否有数据
     bool hasData() const;
 
 signals:
@@ -56,19 +44,15 @@ signals:
     void fileChanged(const QString& filePath, const QString& fileType);
 
 private slots:
-    // 文件操作
     void onOpenFile();
     void onSave();
     void onExportExcel();
-
-    // 工具栏操作（分发给当前页签）
     void onDefineColumns();
     void onTimeConvert();
     void onPressureDropCalc();
     void onCalcPwf();
+    void onFilterSample();
     void onHighlightErrors();
-
-    // 状态
     void onTabChanged(int index);
     void onTabCloseRequested(int index);
     void onSheetDataChanged();
@@ -80,10 +64,11 @@ private:
     void setupConnections();
     void updateButtonsState();
 
-    // 辅助函数：创建新页签
     void createNewTab(const QString& filePath, const DataImportSettings& settings);
-    // 辅助函数：获取当前活动页签
     DataSingleSheet* currentSheet() const;
+
+    // [更新] 将完整的全表数据连同表头一并写入文件，防止其余列丢失
+    void saveAndLoadNewData(const QString& oldFilePath, const QStringList& headers, const QVector<QStringList>& fullTable);
 };
 
 #endif // WT_DATAWIDGET_H

@@ -67,6 +67,7 @@ HEADERS += \
            datacalculate.h \
            datacolumndialog.h \
            dataimportdialog.h \
+           datasamplingdialog.h \
            datasinglesheet.h \
            fittingchart.h \
            fittingchart1.h \
@@ -155,6 +156,7 @@ SOURCES += \
            datacalculate.cpp \
            datacolumndialog.cpp \
            dataimportdialog.cpp \
+           datasamplingdialog.cpp \
            datasinglesheet.cpp \
            fittingchart.cpp \
            fittingchart1.cpp \
